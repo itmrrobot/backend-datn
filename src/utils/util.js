@@ -1,27 +1,50 @@
-function mergeEntries(orders) {
-  const mergedOrders = {};
+function mergeEntries(array) {
+  // const mergedOrders = {};
 
-  orders.forEach((order) => {
-    const id = order.id;
+  // orders.forEach((order) => {
+  //   const id = order.id;
 
-    if (!mergedOrders[id]) {
-      mergedOrders[id] = { ...order };
-      mergedOrders[id].OrderDetails = [mergedOrders[id].OrderDetails];
-    } else {
-      let found = false;
-      mergedOrders[id].OrderDetails.forEach((detail) => {
-        if (detail.size === order.OrderDetails.size) {
-          detail.quantity += order.OrderDetails.quantity;
-          found = true;
+  //   if (!mergedOrders[id]) {
+  //     mergedOrders[id] = { ...order };
+  //     mergedOrders[id].OrderDetails = [mergedOrders[id].OrderDetails];
+  //   } else {
+  //     let found = false;
+  //     mergedOrders[id].OrderDetails.forEach((detail) => {
+  //       if (detail.size === order.OrderDetails.size) {
+  //         detail.quantity += order.OrderDetails.quantity;
+  //         found = true;
+  //       }
+  //     });
+  //     if (!found) {
+  //       mergedOrders[id].OrderDetails.push(order.OrderDetails);
+  //     }
+  //   }
+  // });
+
+  // return Object.values(mergedOrders);
+  const mergedArray = [];
+
+    // Group items by their id
+    const groupedItems = array.reduce((acc, item) => {
+        if (!acc[item.id]) {
+            acc[item.id] = [];
         }
-      });
-      if (!found) {
-        mergedOrders[id].OrderDetails.push(order.OrderDetails);
-      }
-    }
-  });
+        acc[item.id].push(item);
+        return acc;
+    }, {});
 
-  return Object.values(mergedOrders);
+    // Merge items with the same id
+    for (const id in groupedItems) {
+        const items = groupedItems[id];
+        const mergedItem = { ...items[0] }; // Clone the first item
+
+        // Merge OrderDetails
+        mergedItem.OrderDetails = items.map(item => item.OrderDetails);
+
+        mergedArray.push(mergedItem);
+    }
+
+    return mergedArray;
 }
 
 function combineArray(arr) {
@@ -59,4 +82,11 @@ function generateRandomPassword(length) {
   return password;
 }
 
-module.exports = { mergeEntries, generateRandomPassword, combineArray };
+function getPublicIdFromUrl(url) {
+  // Extract the public ID from the Cloudinary URL
+  const startIndex = url.lastIndexOf("/") + 1;
+  const endIndex = url.lastIndexOf(".");
+  return url.substring(startIndex, endIndex);
+}
+
+module.exports = { mergeEntries, generateRandomPassword, combineArray,getPublicIdFromUrl };

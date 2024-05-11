@@ -23,12 +23,13 @@ module.exports = (sequelize, DataTypes) => {
       Product.belongsTo(models.Brand);
       Product.hasMany(models.Reviews,{foreignKey:"id_product"});
       Product.hasMany(models.Inventory,{foreignKey:"id_product"});
+      Product.hasMany(models.OrderDetail,{foreignKey:"id_product"});
     }
   }
   Product.init({
     name: DataTypes.TEXT,
     slug_product: DataTypes.TEXT,
-    import_quatity: DataTypes.INTEGER,
+    import_quantity: DataTypes.INTEGER,
     sell_quantity: DataTypes.INTEGER,
     id_partner: DataTypes.INTEGER,
     img: DataTypes.TEXT,

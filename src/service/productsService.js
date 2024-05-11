@@ -3,15 +3,24 @@ const {
   Category,
   Inventory,
   Brand,
-  ProductInventory,
 } = require("../models/index");
 const Sequelize = require("sequelize");
 const cloudinary = require("../common/cloudinary-config");
 const fs = require("fs");
+const { getPublicIdFromUrl } = require("../utils/util");
 
 const getProductList = async (querys) => {
   //let products = []
-  const { page, limit, categoryId, sort, order, price_gte, price_lte,brandId } = querys;
+  const {
+    page,
+    limit,
+    categoryId,
+    sort,
+    order,
+    price_gte,
+    price_lte,
+    brandId,
+  } = querys;
   console.log(page, limit, order, sort, typeof sort === "string");
   const pages = page || 1;
   const pageSize = limit || 10;
@@ -48,6 +57,7 @@ const getProductList = async (querys) => {
           exclude: ["createdAt", "updatedAt", "id_product"],
         },
       },
+      { model: Brand },
     ],
     where: whereClause,
     nest: true,
@@ -82,13 +92,15 @@ const getProductList = async (querys) => {
 
   // Convert the combined products object to an array
   const combinedProductsArray = Object.values(combinedProducts);
+  let productsArray = combinedProductsArray;
   if (order?.toUpperCase() === "ASC") {
-    return combinedProductsArray.sort((a, b) => a.price - b.price);
+    productsArray = productsArray.sort((a, b) => a.price - b.price);
   } else if (order?.toUpperCase() === "DESC") {
-    return combinedProductsArray.sort((a, b) => b.price - a.price);
+    productsArray = productsArray.sort((a, b) => b.price - a.price);
   }
-  const totalCount = await Product.count({where:whereClause});
-  return {combinedProductsArray,totalCount};
+  console.log("Array:",productsArray)
+  const totalCount = await Product.count({ where: whereClause });
+  return { productsArray, totalCount };
 };
 
 const getProductById = async (id) => {
@@ -102,66 +114,101 @@ const getProductById = async (id) => {
         attributes: {
           exclude: ["createdAt", "updatedAt", "id_product"],
         },
+        order: [['id', 'DESC']]
       },
+      { model: Brand
+       },
     ],
   });
+  product.Inventories = product.Inventories.sort((a, b) => a.id - b.id);
   return product;
 };
 
 const createNewProduct = async (data, files) => {
-  try {
-    const folderName = "shop_imgs"; // Specify the folder name on Cloudinary
+  const folderName = "shop_imgs"; // Specify the folder name on Cloudinary
 
-    const promises = files.map(async (file) => {
-      const result = await cloudinary.uploader.upload(file.path, {
-        folder: folderName,
-      });
-      return result.secure_url;
+  const promises = files.map(async (file) => {
+    const result = await cloudinary.uploader.upload(file.path, {
+      folder: folderName,
     });
+    return result.secure_url;
+  });
 
-    const uploadedImagesUrls = await Promise.all(promises);
-    files.forEach((file) => {
-      fs.unlink(file.path, (err) => {
-        if (err) {
-          console.error(`Error deleting file: ${file.path}`, err);
-        } else {
-          console.log(`File deleted: ${file.path}`);
-        }
-      });
-    });
-    data.img = JSON.stringify(uploadedImagesUrls);
-
-    const listInventory = data.listInventory;
-    let array = eval(listInventory);
-    // const category = await Category.create({
-    //   category_name: data.category_name,
-    // });
-    // const brand = await Brand.create({
-    //   brand_name: data.brand_name,
-    // });
-    const newProduct = await Product.create({
-      ...data,
-      categoryId: data.CategoryId,
-      brandId: data.BrandId
-    });
-    if (listInventory?.length !== 0) {
-      for (const list of array) {
-        await Inventory.create({
-          size: list.size,
-          quantity: list.quantity,
-          id_product: newProduct.id 
-        });
+  const uploadedImagesUrls = await Promise.all(promises);
+  files.forEach((file) => {
+    fs.unlink(file.path, (err) => {
+      if (err) {
+        console.error(`Error deleting file: ${file.path}`, err);
+      } else {
+        console.log(`File deleted: ${file.path}`);
       }
+    });
+  });
+  data.img = JSON.stringify(uploadedImagesUrls);
+
+  const listInventory = data.listInventory;
+  let array = eval(listInventory);
+  // const category = await Category.create({
+  //   category_name: data.category_name,
+  // });
+  // const brand = await Brand.create({
+  //   brand_name: data.brand_name,
+  // });
+  //data.import_quantity = Number(data.import_quantity)
+  const newProduct = await Product.create({ ...data });
+  if (listInventory?.length !== 0) {
+    for (const list of array) {
+      await Inventory.create({
+        size: list.size,
+        quantity: list.quantity,
+        id_product: newProduct.id,
+      });
     }
-    return newProduct;
-  } catch (e) {
-    console.log(e);
-    throw new Error(e);
   }
+  return newProduct;
 };
 
-const updateProduct = async (id, data) => {
+const updateProduct = async (id, data, files) => {
   try {
+    const product = await getProductById(id);
+    const arrayImgs = product.img;
+    let uploadedImagesUrls;
+    const folderName = "shop_imgs"; // Specify the folder name on Cloudinary
+    if (files) {
+      const promises = files.map(async (file) => {
+        const result = await cloudinary.uploader.upload(file.path, {
+          folder: folderName,
+        });
+        return result.secure_url;
+      });
+
+      uploadedImagesUrls = await Promise.all(promises);
+      files.forEach((file) => {
+        fs.unlink(file.path, (err) => {
+          if (err) {
+            console.error(`Error deleting file: ${file.path}`, err);
+          } else {
+            console.log(`File deleted: ${file.path}`);
+          }
+        });
+      });
+    }
+    if (
+      data.imgsSelectedEdit &&
+      files.length === JSON.parse(data.imgsSelectedEdit).length &&
+      files
+    ) {
+      JSON.parse(data.imgsSelectedEdit).forEach((value, index) => {
+        const newValue = uploadedImagesUrls[index];
+        if (value > 3) {
+          return;
+        }
+        if (index >= 0 && index < arrayImgs.length) {
+          arrayImgs[value] = newValue;
+        }
+      });
+    }
+    data.img = JSON.stringify(arrayImgs);
     await Product.update({ ...data }, { where: { id }, raw: true });
     //console.log(product)
     return await getProductById(id);
@@ -171,6 +218,26 @@ const updateProduct = async (id, data) => {
 };
 
 const deleteProduct = async (id) => {
+  console.log(id);
+  const product = await getProductById(id);
+  if (!product) {
+    return null;
+  }
+  const publicIds = product?.img.map((url) => {
+    const id = getPublicIdFromUrl(url);
+    return id;
+  });
+  publicIds?.length !== 0 &&
+    publicIds?.forEach(async (publicId) => {
+      try {
+        await cloudinary.uploader.destroy(`shop_imgs/${publicId}`);
+      } catch (error) {
+        console.error(
+          `Error deleting image with public ID ${publicId}:`,
+          error
+        );
+      }
+    });
   await Product.destroy({ where: { id } });
 };
 

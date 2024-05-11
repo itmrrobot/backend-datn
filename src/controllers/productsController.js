@@ -6,9 +6,9 @@ const fs = require("fs");
 const handleGetProductList = async (req, res) => {
   try {
     const querys = req.query;
-    const {combinedProductsArray,totalCount} = await productsService.getProductList(querys);
+    const {productsArray,totalCount} = await productsService.getProductList(querys);
     res.header('x-total-count', totalCount);
-    return res.send({ products:combinedProductsArray });
+    return res.send({ products:productsArray });
   } catch (e) {
     console.log(e);
     res.status(500).send();
@@ -42,7 +42,7 @@ const handleUpdateProduct = async (req, res) => {
   try {
     const product = await productsService.getProductById(id);
     if (product === null) return res.status(404).send();
-    const updateProduct = await productsService.updateProduct(id, req.body);
+    const updateProduct = await productsService.updateProduct(id, req.body,req.files);
     res.send(updateProduct);
   } catch (e) {
     console.log(e);
@@ -52,15 +52,9 @@ const handleUpdateProduct = async (req, res) => {
 
 const handleDeleteProduct = async (req, res) => {
   let id = req.params.id;
-  let imgs = [];
   try {
-    const product = await productsService.getProductById(id);
-    if (product === null) return res.status(404).send();
-    imgs = JSON.parse(product.img);
-    await productsService.deleteProduct(id);
-    imgs.forEach((img, index) => {
-      fs.unlinkSync(imgPath + img);
-    });
+    const product = await productsService.deleteProduct(id);
+    if(product===null) return res.status(404).send();
     res.send({ msg: "Delete success" });
   } catch (e) {
     console.log(e);

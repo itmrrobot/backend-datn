@@ -1,4 +1,4 @@
-const { Returns, Order, OrderDetail } = require("../models/index");
+const { Returns, Order, OrderDetail,Product,Inventory } = require("../models/index");
 const cloudinary = require("../common/cloudinary-config");
 const fs = require("fs");
 
@@ -40,6 +40,22 @@ const getAllReturns = async () => {
             attributes: {
               exclude: ["createdAt", "updatedAt"],
             },
+            include: [
+              {
+                model: Product,
+                attributes: {
+                  exclude: ["createdAt", "updatedAt"],
+                },
+                include: [
+                  {
+                    model: Inventory,
+                    attributes: {
+                      exclude: ["createdAt", "updatedAt"],
+                    },
+                  },
+                ],
+              },
+            ],
           },
         ],
       },

@@ -53,7 +53,7 @@ const handleUpdateBrand = async(req,res) => {
     try {
         const brand = await brandService.getBrandById(id);
         if(brand===null) return res.status(404).send();
-        const updateBrand = await brandService.updateBrand(id,req.body);
+        const updateBrand = await brandService.updateBrand(id,req.body,req.file);
         res.send(updateBrand);
     } catch(e) {
         console.log(e);
@@ -63,19 +63,14 @@ const handleUpdateBrand = async(req,res) => {
 
 const handleDeleteBrand = async(req,res) => {
     let id = req.params.id;
-    let imgs=[]
-    try {
-        const brand = await brandService.getBrandById(id);
-        if(brand===null) return res.status(404).send();
-        imgs=JSON.parse(brand.img);
-        await brandService.deleteBrand(id);
-        imgs.forEach((img,index) => {
-            fs.unlinkSync(imgPath+img);
-        })
-    } catch(e) {
-        console.log(e);
-        res.status(500).send()
-    }
+  try {
+    const brand = await brandService.deleteBrand(id);
+    if(brand===null) return res.status(404).send();
+    res.send({ msg: "Delete success" });
+  } catch (e) {
+    console.log(e);
+    res.status(500).send();
+  }
 }
 
 module.exports = {handleGetBrandList,handleGetBrandById,handleCreateNewBrand,handleDeleteBrand,handleUpdateBrand};

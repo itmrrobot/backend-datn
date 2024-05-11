@@ -7,7 +7,7 @@ const cors = require("cors");
 const paymentRouter = require("./router/payment");
 const productsRouter = require("./router/products");
 const categoryRouter = require("./router/category");
-const brandRouter = require("./router/category");
+const brandRouter = require("./router/brand");
 const orderRouter = require("./router/order");
 const retunrsRouter = require("./router/returns");
 const customerRouter = require("./router/customer");
@@ -32,11 +32,14 @@ const port = process.env.PORT || 8888;
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
+app.set('trust proxy', true);
+
 
 const corsOptions ={
     origin:'*', 
     credentials:true,            //access-control-allow-credentials:true
-    optionSuccessStatus:200
+    optionSuccessStatus:200,
+    exposedHeaders: "X-Total-Count"
 }
 app.use(cors(corsOptions));
 
