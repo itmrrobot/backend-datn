@@ -23,11 +23,11 @@ router
     "/auth/google/callback",
     passport.authenticate("google", {
       //successRedirect:"http://localhost:3000",
-      failureRedirect: "https://itmrrobot.github.io/Frontend-datn/login",
+      failureRedirect: "https://shop-datn.netlify.app/login",
     }),
     function (req, res) {
       session.user = req.user;
-     res.redirect("https://itmrrobot.github.io/Frontend-datn/auth/oauth2/login");
+     res.redirect("https://shop-datn.netlify.app/auth/oauth2/login");
     //  console.log(res);
     }
   )
