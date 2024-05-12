@@ -23,11 +23,11 @@ router
     "/auth/google/callback",
     passport.authenticate("google", {
       //successRedirect:"http://localhost:3000",
-      failureRedirect: "http://localhost:3000/login",
+      failureRedirect: "https://itmrrobot.github.io/Frontend-datn/login",
     }),
     function (req, res) {
       session.user = req.user;
-     res.redirect("http://localhost:3000/auth/oauth2/login");
+     res.redirect("https://itmrrobot.github.io/Frontend-datn/auth/oauth2/login");
     //  console.log(res);
     }
   )
