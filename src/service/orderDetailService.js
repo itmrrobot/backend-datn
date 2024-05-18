@@ -5,7 +5,7 @@ const updateOrderDetail = async (dataOrderDetail) => {
     const { id, data } = dataOrderDetail;
     const { id_order, ...restData } = data;
     await OrderDetail.update({ ...restData }, { where: { id, id_order } });
-    return await OrderDetail.findOne({where:{id,id_order}});
+    return await OrderDetail.findOne({where:{id,id_order}}).sort((a, b) => a.id - b.id);
   } catch (e) {
     console.log(e);
   }
