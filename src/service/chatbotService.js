@@ -205,7 +205,7 @@ const responeQuestions = async(input) => {
   }
   const spam = isSpamByFrequency(input);
   if (spam) {
-    return "You are spam";
+    return "Bạn đang spam";
   }
   const singleCharacterRegex = /^[.?!@#$%^&*()-+=/*~`,:;'<>|\\{}[\]]$/;
   if (singleCharacterRegex.test(input)) {
@@ -260,7 +260,7 @@ const responeQuestions = async(input) => {
   }
   
   // If no close match is found, return "I don't understand"
-  return "I don't understand.";
+  return "Xin lỗi! Tôi không hiểu";
 };
 
 
