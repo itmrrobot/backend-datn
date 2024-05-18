@@ -36,7 +36,7 @@ const getOrderById = async (id) => {
 
     raw: true,
     nest: true,
-  });
+  }).sort((a, b) => a.id - b.id);
   const object = Object.assign(
     {},
     ...mergeEntries(order).map((item) => ({ [item.id]: item }))
