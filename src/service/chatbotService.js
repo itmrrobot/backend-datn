@@ -95,7 +95,7 @@ function trainNetwork() {
 
   // Skip the first element since it contains headers
   for (var i = 1; i < csvData.length; i++) {
-    var pair = csvData[i].split(":");
+    var pair = csvData[i].split("|");
     var question = pair[0].trim();
     var answer = pair[1].trim();
     data[question] = answer;
