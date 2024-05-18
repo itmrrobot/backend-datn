@@ -225,7 +225,7 @@ const responeQuestions = async(input) => {
 
   // Skip the first element since it contains headers
   for (var i = 1; i < csvData.length; i++) {
-    var pair = csvData[i].split(":");
+    var pair = csvData[i].split("|");
     var question = pair[0].trim();
     var answer = pair.slice(1).join(":").trim(); // Handle ':' in the answer
     data[question] = answer;
