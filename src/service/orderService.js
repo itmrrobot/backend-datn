@@ -42,7 +42,7 @@ const getOrderById = async (id) => {
     ...mergeEntries(order).map((item) => ({ [item.id]: item }))
   );
   const newOrder = Object.values(object)[0];
-  return newOrder.sort((a, b) => a.id - b.id);
+  return newOrder;
 };
 
 const getAllOrders = async () => {
