@@ -252,7 +252,7 @@ const responeQuestions = async(input) => {
   var categories = Object.values(data);
   var wordsDictionary = arrayToDictonary(texts);
   // If the closest match has a similarity score above a certain threshold, return its answer
-  if (closestMatch > 0.2) {
+  if (closestMatch > 0.8) {
     // return categories[
     //   arrayMaxIndex(network.activate(textToVector(input, wordsDictionary)))
     // ];
