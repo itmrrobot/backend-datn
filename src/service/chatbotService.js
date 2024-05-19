@@ -119,8 +119,8 @@ function trainNetwork() {
   var trainingSet = [];
   var wordsDictionary = arrayToDictonary(texts);
   var categoriesDictionary = arrayToDictonary(categories, "", true);
-  // console.log("wordsDictionary",wordsDictionary)
-  // console.log("categoriesDictionary",categoriesDictionary)
+  console.log("wordsDictionary",wordsDictionary)
+  console.log("categoriesDictionary",categoriesDictionary)
   for (var text in data) {
     var category = data[text];
     // console.log("text",text," word dic ",wordsDictionary,"textToVector(text, wordsDictionary)",textToVector(text, wordsDictionary))
@@ -160,15 +160,15 @@ function trainNetwork() {
 
   var result = trainer.train(trainingSet, {
     rate: 0.1,
-    iterations: 1000000000,
+    iterations: 13000,
     error: 0.005,
     shuffle: true,
-    // log: 10,
+    log: 10,
     cost: synaptic.Trainer.cost.CROSS_ENTROPY,
     schedule: {
       every: 100,
       do: function (data) {
-        //console.log(data);
+        console.log(data);
 
         if (data.iterations % 10 === 0) {
           // console.log('Testing the "it was very good" text. Category:');
