@@ -253,10 +253,10 @@ const responeQuestions = async(input) => {
   var wordsDictionary = arrayToDictonary(texts);
   // If the closest match has a similarity score above a certain threshold, return its answer
   if (closestMatch > 0.8) {
-    return categories[
-      arrayMaxIndex(network.activate(textToVector(input, wordsDictionary)))
-    ];
-    //return data[closestQuestion];
+    // return categories[
+    //   arrayMaxIndex(network.activate(textToVector(input, wordsDictionary)))
+    // ];
+    return data[closestQuestion];
   }
   
   // If no close match is found, return "I don't understand"
