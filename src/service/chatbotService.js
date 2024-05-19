@@ -257,6 +257,13 @@ const responeQuestions = async(input) => {
     //   arrayMaxIndex(network.activate(textToVector(input, wordsDictionary)))
     // ];
     return data[closestQuestion];
+  } else {
+    data[input] = "Xin lỗi! Tôi không hiểu";
+    fs.appendFileSync(
+      path.join(__dirname, "../../dataset/data.csv"),
+      `\n${input}| Xin lỗi! Tôi không hiểu.`,
+      "utf-8"
+    );
   }
   
   // If no close match is found, return "I don't understand"
